@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4463a7c27afeacd4cae3f3d64c898610, type: 3}
+  m_Name: SFX_Config
+  m_EditorClassIdentifier: 
+  _settings:
+  - Key: 0
+    AudioClips:
+    - {fileID: 8300000, guid: 23120bd983b32eb44b7dfcc46185a3ad, type: 3}
+  - Key: 1
+    AudioClips:
+    - {fileID: 8300000, guid: fce9a535e96834f4996dabf530b082be, type: 3}
+  - Key: 2
+    AudioClips:
+    - {fileID: 8300000, guid: fce9a535e96834f4996dabf530b082be, type: 3}
+  - Key: 3
+    AudioClips:
+    - {fileID: 8300000, guid: 03274f986d174f64da64b78d024c5d38, type: 3}
+  - Key: 4
+    AudioClips:
+    - {fileID: 8300000, guid: a94c07076d5627d4f81bbbd3569e36ac, type: 3}
+    - {fileID: 8300000, guid: 6392dc659a0aa1d47bae18d47c1a155e, type: 3}
+    - {fileID: 8300000, guid: d04d2519215728c4982454b6bf81d413, type: 3}
+  - Key: 5
+    AudioClips:
+    - {fileID: 8300000, guid: 3019bb1b4a82d0b4598f589863dac187, type: 3}

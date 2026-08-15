@@ -36,12 +36,26 @@ namespace PixelPuzzle
         public void Load()
         {
             var path = GetPath();
-            var text = File.ReadAllText(path);
+            string text = string.Empty;
+
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                text = PlayerPrefs.GetString("SaveData");
+            }
+            else
+            {
+                text = File.ReadAllText(path);
+            }
+
             var data = JsonUtility.FromJson<SaveData>(text);
 
             if (data != null)
             {
                 SaveData = data;
+                if (data.AppVersion != Application.version)
+                {
+                    ClearData();
+                }
             }
             else
             {
@@ -53,7 +67,15 @@ namespace PixelPuzzle
         {
             var path = GetPath();
             var serialized = JsonUtility.ToJson(SaveData);
-            File.WriteAllText(path, serialized);
+
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                PlayerPrefs.SetString("SaveData", serialized);
+            }
+            else
+            {
+                File.WriteAllText(path, serialized);
+            }
         }
 
         private string GetPath()

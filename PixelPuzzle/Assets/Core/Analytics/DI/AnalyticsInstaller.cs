@@ -8,5 +8,5 @@ namespace PixelPuzzle
         {
             Container.BindInterfacesAndSelfTo<AnalyticsServiceController>().AsSingle();
         }
-    } 
+    }
 }

@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-using System;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Scripting;
@@ -66,6 +65,8 @@ namespace PixelPuzzle
         private async UniTaskVoid InitializeAsync(CancellationToken token)
         {
             _saveLoadService.Initialize();
+            GUI_Log.Log("Save load init");
+
             _fieldDataProvider.Initialize();
             _imageProvider.Initialize();
             _fieldView.Initialize();
@@ -78,16 +79,21 @@ namespace PixelPuzzle
             _uiController.Initialize();
             _worldUI.Initialize();
             _soundController.Initialize();
+            GUI_Log.Log("Services init");
 
             await _analyticsServiceController.InitializeAsync(token);
+            GUI_Log.Log("Analytics init");
 
-            //_saveLoadService.ClearData(); //TEMP
-
-            GarbageCollector.CollectIncremental(500000000);
+            if (Application.platform != RuntimePlatform.WebGLPlayer)
+            {
+                GarbageCollector.CollectIncremental(500000000);
+                GUI_Log.Log("GC");
+            }
 
             _fieldView.Hide();
             _worldUI.Hide();
             _gameController.SetState<MenuState>();
+            GUI_Log.Log("Game controller start");
         }
     }
 

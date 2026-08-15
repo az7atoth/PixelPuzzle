@@ -14,6 +14,7 @@ namespace PixelPuzzle
     public class Block : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
     {
         private const float AUTO_MOVE_SPEED = 5f;
+        private const float SMOOTH_SPEED = 15f;
 
         public int SpawnIndex { get; private set; }
         public BlockData BlockData { get; private set; }
@@ -26,6 +27,7 @@ namespace PixelPuzzle
 
         private Vector3 _startPosition;
         private Vector3 _cursorOffset;
+        private Vector3 _targetPosition;
         private bool _dragging;
 
         private CancellationTokenSource _cts;
@@ -90,8 +92,13 @@ namespace PixelPuzzle
             if (Application.platform != RuntimePlatform.WindowsPlayer
                 && Application.platform != RuntimePlatform.WebGLPlayer)
             {
-                _cursorOffset += Vector3.up * 3f;
+                _cursorOffset += Vector3.up * 2.5f;
             }
+
+            _targetPosition = new Vector3(
+                cursorPosition.x + _cursorOffset.x, 
+                cursorPosition.y + _cursorOffset.y, 
+                _startPosition.z);
 
             SetSortingOrder(SpawnIndex + 100);
         }
@@ -101,8 +108,10 @@ namespace PixelPuzzle
             if (Blackboard.SomeAnimationInProgress || !_dragging) return;
 
             var cursorPosition = Camera.main.ScreenToWorldPoint(eventData.position);
-            var position = new Vector3(cursorPosition.x + _cursorOffset.x, cursorPosition.y + _cursorOffset.y, _startPosition.z);
-            transform.position = position;
+            _targetPosition = new Vector3(
+                cursorPosition.x + _cursorOffset.x, 
+                cursorPosition.y + _cursorOffset.y, 
+                _startPosition.z);
         }
 
         public void OnEndDrag(PointerEventData eventData)
@@ -202,6 +211,14 @@ namespace PixelPuzzle
             _cts = null;
         }
 
+        private void Update()
+        {
+            if (_dragging)
+            {
+                Move();
+            }
+        }
+
         private void MakeTween()
         {
             _autoMoveTween = transform
@@ -210,6 +227,12 @@ namespace PixelPuzzle
                 .SetAutoKill(false)
                 .SetEase(Ease.InOutCubic)
                 .Pause();
+        }
+
+        private void Move()
+        {
+            var position = Vector3.Lerp(transform.position, _targetPosition, Time.deltaTime * SMOOTH_SPEED);
+            transform.position = position;
         }
     }
 }

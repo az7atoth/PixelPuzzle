@@ -4,6 +4,7 @@ using System.Threading;
 using Unity.Services.Analytics;
 using Unity.Services.Core;
 using UnityEngine;
+using UnityEngine.UnityConsent;
 
 namespace PixelPuzzle
 {
@@ -11,20 +12,33 @@ namespace PixelPuzzle
     {
         public async UniTask InitializeAsync(CancellationToken token)
         {
+            if (Application.platform == RuntimePlatform.WebGLPlayer) return;
+
             try
             {
-                await UnityServices.InitializeAsync();
+                await UnityServices.InitializeAsync().AsUniTask().TimeoutWithoutException(TimeSpan.FromSeconds(2f));
             }
             catch (Exception e)
             {
                 Debug.LogException(e);
             }
 
-            AnalyticsService.Instance.StartDataCollection();
+            if (!Application.isEditor)
+            {
+                var consentState = EndUserConsent.GetConsentState();
+
+                if (consentState.AnalyticsIntent != ConsentStatus.Granted)
+                {
+                    consentState.AnalyticsIntent = ConsentStatus.Granted;
+                    EndUserConsent.SetConsentState(consentState);
+                }
+            }
         }
 
         public void SendOnPuzzleSolved(int imageID, float solvingTime, int hintsUsed)
         {
+            if (Application.platform == RuntimePlatform.WebGLPlayer) return;
+
             CustomEvent puzzleSolvedEvent = new CustomEvent("puzzle_solved")
             {
                 {"image_id", imageID},

@@ -24,7 +24,7 @@ namespace Zenject
 #if !NOT_UNITY3D
 
         // Add new component to existing game object and fill in its dependencies
-        // NOTE: Gameobject here is not a prefab BlockPuzzle, it is an instance
+        // NOTE: Gameobject here is not a prefab prototype, it is an instance
         TContract InstantiateComponent<TContract>(GameObject gameObject)
             where TContract : Component;
         TContract InstantiateComponent<TContract>(

@@ -1,6 +1,5 @@
 ﻿using Az7.Utils.Disposables;
 using Cysharp.Threading.Tasks;
-using System.Threading;
 using Zenject;
 using UniRx;
 
@@ -14,7 +13,6 @@ namespace PixelPuzzle
         private ISoundController _soundController;
         private ICurtain _curtain;
 
-        private CancellationTokenSource _cts;
         private DisposableTracker _disposableTracker = new();
 
         [Inject]
@@ -38,8 +36,7 @@ namespace PixelPuzzle
             _uIController.ShowView(ViewKey.MainMenu);
             _uIController.ShowView(ViewKey.SFX_Panel);
 
-            _cts = new();
-            _curtain.HideAsync(_cts.Token).Forget();
+            _curtain.HideImmidiate();
 
             EventBus.UI_OnLevelMenuPressed.Subscribe(_ =>
             {
@@ -57,31 +54,26 @@ namespace PixelPuzzle
             EventBus.UI_OnStartGamePressed.Subscribe(_ =>
             {
                 _imageProvider.LoadNextImage();
-                _cts = new();
-                ToRunningAsync(_cts.Token).Forget();
+                ToRunningState();
             }).AddTo(_disposableTracker);
 
             EventBus.UI_OnLevelChoose.Subscribe(id =>
             {
                 _soundController.Play(SoundKey.ButtonClick);
                 _imageProvider.LoadImage(id);
-                _cts = new();
-                ToRunningAsync(_cts.Token).Forget();
+                ToRunningState();
             }).AddTo(_disposableTracker);
         }
 
         public override void OnExit()
         {
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _cts = null;
-
             _disposableTracker.Dispose();
         }
 
-        private async UniTaskVoid ToRunningAsync(CancellationToken token)
+        private void ToRunningState()
         {
-            await _curtain.ShowAsync(token);
+            _curtain.ShowImmidiate();
+
             _uIController.HideAll();
             _gameController.SetState<RunningState>();
         }

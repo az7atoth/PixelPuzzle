@@ -4,6 +4,7 @@ using System.Threading;
 using Zenject;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace PixelPuzzle
 {
@@ -66,8 +67,7 @@ namespace PixelPuzzle
 
             EventBus.UI_OnMainMenuPressed.Subscribe(_ =>
             {
-                _cts = new();
-                LeaveGameAsync(_cts.Token).Forget();
+                LeaveGame();
             }).AddTo(_disposableTracker);
 
             EventBus.OnPuzzleSolved.Subscribe(_ =>
@@ -83,8 +83,6 @@ namespace PixelPuzzle
                 _cts = new();
                 StartNextLevelAsync(_cts.Token).Forget();
             }).AddTo(_disposableTracker);
-
-
         }
 
         public override void OnExit()
@@ -129,7 +127,13 @@ namespace PixelPuzzle
 
             var waitTime = Random.Range(.5f, 1.2f);
             await UniTask.WaitForSeconds(waitTime, cancellationToken: token);
-            await _curtain.HideAsync(token);
+
+            if (Application.platform != RuntimePlatform.WebGLPlayer)
+            {
+                GarbageCollector.CollectIncremental(100000000);
+            }
+
+            _curtain.HideImmidiate();
 
             _startLevelTime = Time.realtimeSinceStartup;
 
@@ -137,18 +141,15 @@ namespace PixelPuzzle
             Blackboard.GameInProgress = true;
         }
 
-        private async UniTask LeaveGameAsync(CancellationToken token)
+        private void LeaveGame()
         {
-            await _curtain.ShowAsync(token);
-
             _uIController.HideAll();
-
             _gameController.SetState<MenuState>();
         }
 
         private async UniTask StartNextLevelAsync(CancellationToken token)
         {
-            await _curtain.ShowAsync(token);
+            _curtain.ShowImmidiate();
 
             _uIController.HideAll();
             _imageProvider.LoadNextImage();
